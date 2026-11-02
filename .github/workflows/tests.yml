@@ -10,4 +10,6 @@ jobs:
           python-version: '3.11'
       - run: pip install -r requirements.txt
       - run: python scripts/generate_data.py
+      - name: Set Python path
+  run: echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
       - run: pytest -q
