@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+.pytest_cache/
+*.py[cod]
+data/house_data.csv
+models/*.joblib
+models/current.json
+models/metrics_*.json
+models/feature_importance_*.csv

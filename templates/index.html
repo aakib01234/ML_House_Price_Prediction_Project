@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>House Price Predictor</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <main class="container">
+    <section class="card">
+      <p class="eyebrow">MACHINE LEARNING DEMO</p>
+      <h1>House Price Predictor</h1>
+      <p class="intro">Enter property details to estimate its price in Indian rupees.</p>
+      <form id="prediction-form">
+        <div class="grid">
+          <label>Area (sq ft)<input name="area" type="number" min="1" step="1" value="1200" required></label>
+          <label>Bedrooms<input name="bedrooms" type="number" min="0" step="1" value="3" required></label>
+          <label>Bathrooms<input name="bathrooms" type="number" min="0" step="0.5" value="2" required></label>
+          <label>Property age (years)<input name="age" type="number" min="0" step="1" value="5" required></label>
+          <label>Location<select name="location"><option>City Center</option><option>Suburb</option><option>Outskirts</option></select></label>
+          <label>Property type<select name="property_type"><option>Apartment</option><option>Independent House</option><option>Villa</option></select></label>
+        </div>
+        <button type="submit">Estimate price</button>
+      </form>
+      <div id="result" class="result" aria-live="polite"></div>
+      <p class="disclaimer">Demo only: trained on synthetic data, not suitable for real property valuation.</p>
+    </section>
+  </main>
+  <script>
+    const form = document.querySelector("#prediction-form");
+    const result = document.querySelector("#result");
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      result.textContent = "Calculating…";
+      const data = Object.fromEntries(new FormData(form).entries());
+      for (const key of ["area", "bedrooms", "bathrooms", "age"]) data[key] = Number(data[key]);
+      try {
+        const response = await fetch("/api/predict", {
+          method: "POST", headers: {"Content-Type": "application/json"},
+          body: JSON.stringify(data)
+        });
+        const body = await response.json();
+        if (!response.ok) throw new Error(body.error || "Request failed");
+        result.innerHTML = `<strong>Estimated price: ₹${body.predicted_price_inr.toLocaleString("en-IN")}</strong><small>Model: ${body.algorithm} · ${body.model_version}</small>`;
+      } catch (error) {
+        result.textContent = error.message;
+      }
+    });
+  </script>
+</body>
+</html>
